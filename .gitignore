@@ -1,0 +1,7 @@
+ExternProcessor/obj
+ExternProcessor/bin
+ExternProcessorLib/obj
+ExternProcessorLib/bin
+*.suo
+
+
