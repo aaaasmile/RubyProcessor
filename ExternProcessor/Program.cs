@@ -16,10 +16,19 @@ namespace ExternProcessor
             proc.TeminatedEvent += (x) => { Console.WriteLine(x); };
 
             proc.InitLogger();
-            proc.StartProcess(env, "");
+            proc.StartProcess(env, CreateDemoTemplate());
 
             Console.WriteLine("Press any Key");
             Console.ReadKey();
+        }
+
+        private static string CreateDemoTemplate()
+        {
+            StringBuilder str = new StringBuilder();
+
+            str.AppendLine("This is a Template");
+
+            return str.ToString();
         }
     }
 }
