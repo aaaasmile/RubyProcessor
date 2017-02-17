@@ -11,6 +11,9 @@ namespace ExternProcessorLib
     {
         private static log4net.ILog _log = log4net.LogManager.GetLogger(typeof(ProcessStarter));
 
+        internal delegate void OutputWrittenHandler(string res);
+        internal event OutputWrittenHandler OutputWrittenEvent = x => { };
+
         internal void ExecuteCmd(string rubyExe, string startScript)
         {
             string cmdoptionComplete = string.Format("'{0}'", startScript);
@@ -56,6 +59,7 @@ namespace ExternProcessorLib
             if (!String.IsNullOrEmpty(e.Data))
             {
                 _log.DebugFormat("STDOUT: {0}", e.Data);
+                OutputWrittenEvent(e.Data);
             }
         }
     }

@@ -29,7 +29,10 @@ namespace ExternProcessorLib
         {
 
             ProcessStarter processStarter = new ProcessStarter();
+            processStarter.OutputWrittenEvent += (x) => _result.AppendLine(x);
+
             processStarter.ExecuteCmd(@"C:\local\share\ruby_2_3_3\bin\ruby.exe", "-v");
+
 
             _result.Append("Done!");
             FireTeminatedEvent();
