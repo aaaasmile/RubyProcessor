@@ -11,6 +11,8 @@ namespace ExternProcessorLib
 {
     public class AnotherProcessor
     {
+        private static log4net.ILog _log = log4net.LogManager.GetLogger(typeof(AnotherProcessor));
+
         private StringBuilder _result = new StringBuilder();
 
         public delegate void ProcessTerminatedHandler(string Result);
@@ -31,30 +33,39 @@ namespace ExternProcessorLib
             ProcessStarter processStarter = new ProcessStarter();
             processStarter.OutputWrittenEvent += (x) => _result.AppendLine(x);
 
-            StringBuilder flyScript = new StringBuilder();
-            flyScript.Append("-e ");
 
-            GenerateScript(env, template, flyScript);
+            string fileName = GenerateAppScript(env, template);
 
-            processStarter.ExecuteCmd(@"C:\local\share\ruby_2_3_3\bin\ruby.exe", flyScript.ToString());
+            processStarter.ExecuteCmd(@"C:\local\share\ruby_2_3_3\bin\ruby.exe", fileName);
 
 
             _result.Append("Done!");
             FireTeminatedEvent();
         }
 
-        private void GenerateScript(Dictionary<string, string> env, string template, StringBuilder flyScript)
+        private string GenerateAppScript(Dictionary<string, string> env, string template)
         {
+            string result = Path.GetTempPath();
+            result = Path.Combine(result, string.Format("tmplate_{0}.rb", Guid.NewGuid()));
+
+            StreamWriter file = new StreamWriter(result);
+
+            StringBuilder flyScript = new StringBuilder();
             flyScript.AppendLine("require 'rubygems'");
             flyScript.AppendLine("require 'erubis'");
 
             flyScript.AppendLine("");
-            flyScript.AppendLine(string.Format("input = {0}", template));
+            flyScript.AppendLine(string.Format("input = \"{0}\"", template));
             flyScript.AppendLine("eruby_object= Erubis::Eruby.new(input)");
             flyScript.AppendLine("puts eruby_object.result(binding)");
 
+            file.WriteLine(flyScript.ToString());
+            file.Close();
             //flyScript.AppendLine("puts \"Hello World\"");
             //flyScript.AppendLine("puts \"Is not Fun?\"");
+            _log.DebugFormat("Created script file {0}", result);
+
+            return result;
         }
 
         private void FireTeminatedEvent()
