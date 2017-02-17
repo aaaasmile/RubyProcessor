@@ -1,6 +1,9 @@
-﻿using System;
+﻿using log4net.Config;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,6 +15,15 @@ namespace ExternProcessorLib
 
         public delegate void ProcessTerminatedHandler(string Result);
         public event ProcessTerminatedHandler TeminatedEvent;
+
+        public void InitLogger()
+        {
+            string filename = Log4NetConfigFileName();
+            if (File.Exists(filename))
+            {
+                XmlConfigurator.ConfigureAndWatch(new FileInfo(filename));
+            }
+        }
 
         public void StartProcess(Dictionary<string, string> Env, string Template)
         {
@@ -29,6 +41,16 @@ namespace ExternProcessorLib
             {
                 TeminatedEvent(_result.ToString());
             }
+        }
+
+        private static string Log4NetConfigFileName()
+        {
+            string dir = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            string name = "ExternProcessorLib";
+
+            return Path.Combine(
+                dir,
+                name + ".Log4net.config");
         }
     }
 }

@@ -15,6 +15,7 @@ namespace ExternProcessor
             AnotherProcessor proc = new AnotherProcessor();
             proc.TeminatedEvent += (x) => { Console.WriteLine(x); };
 
+            proc.InitLogger();
             proc.StartProcess(env, "");
 
             Console.WriteLine("Press any Key");
