@@ -36,6 +36,7 @@ namespace ExternProcessorLib
 
             string fileName = GenerateAppScript(env, template);
 
+            //processStarter.ExecuteCmd(@"C:\local\share\ruby_2_3_3\bin\ruby.exe", @"c/Users/igsa/AppData/Local/Temp/tmplate_1f822f0c - 4a48 - 469e-a436 - d79b460ceb77.rb1");
             processStarter.ExecuteCmd(@"C:\local\share\ruby_2_3_3\bin\ruby.exe", fileName);
 
 
@@ -55,6 +56,7 @@ namespace ExternProcessorLib
             flyScript.AppendLine("require 'erubis'");
 
             flyScript.AppendLine("");
+            flyScript.AppendLine("name = \"Igor\"");
             flyScript.AppendLine(string.Format("input = \"{0}\"", template));
             flyScript.AppendLine("eruby_object= Erubis::Eruby.new(input)");
             flyScript.AppendLine("puts eruby_object.result(binding)");

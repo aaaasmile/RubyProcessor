@@ -26,7 +26,7 @@ namespace ExternProcessor
         {
             StringBuilder str = new StringBuilder();
 
-            str.AppendLine("This is a Template");
+            str.Append("This is a Template by <%= name %>");
 
             return str.ToString();
         }
