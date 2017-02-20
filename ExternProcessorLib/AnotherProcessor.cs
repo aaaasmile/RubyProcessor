@@ -27,7 +27,7 @@ namespace ExternProcessorLib
             }
         }
 
-        public void StartProcess(Dictionary<string, string> env, string template)
+        public void StartProcess(Dictionary<string, object> env, string template)
         {
 
             ProcessStarter processStarter = new ProcessStarter();
@@ -44,7 +44,7 @@ namespace ExternProcessorLib
             FireTeminatedEvent();
         }
 
-        private string GenerateAppScript(Dictionary<string, string> env, string template)
+        private string GenerateAppScript(Dictionary<string, object> env, string template)
         {
             string result = Path.GetTempPath();
             result = Path.Combine(result, string.Format("tmplate_{0}.rb", Guid.NewGuid()));
@@ -55,8 +55,9 @@ namespace ExternProcessorLib
             flyScript.AppendLine("require 'rubygems'");
             flyScript.AppendLine("require 'erubis'");
 
-            flyScript.AppendLine("");
-            flyScript.AppendLine("name = \"Igor\"");
+            //flyScript.AppendLine("");
+            //flyScript.AppendLine("name = \"Igor\"");
+            PrepareVariables(env, flyScript);
             flyScript.AppendLine(string.Format("input = \"{0}\"", template));
             flyScript.AppendLine("eruby_object= Erubis::Eruby.new(input)");
             flyScript.AppendLine("puts eruby_object.result(binding)");
@@ -68,6 +69,97 @@ namespace ExternProcessorLib
             _log.DebugFormat("Created script file {0}", result);
 
             return result;
+        }
+
+        private void PrepareVariables(Dictionary<string, object> env, StringBuilder flyScript)
+        {
+            foreach (var item in env)
+            {
+                string key = item.Key;
+                var obj = item.Value;
+                if (obj is List<string>)
+                {
+                    BuildStringArray(obj as List<string>, flyScript, key);
+                }
+                else if (obj is List<Dictionary<string, string>>)
+                {
+                    BuildRecordArray(obj as List<Dictionary<string, string>>, flyScript, key);
+                }
+                else if (obj is Dictionary<string, string>)
+                {
+                    BuildSingleRecord(obj as Dictionary<string, string>, flyScript, key);
+                }
+                else if (obj is string)
+                {
+                    BuildStringAssignment(obj as string, flyScript, key);
+                }
+            }
+        }
+
+        private void BuildStringAssignment(string v, StringBuilder flyScript, string key)
+        {
+            flyScript.AppendFormat("{0} = \"{1}\"\n", key, v);
+        }
+
+        private void BuildStringArray(List<string> list, StringBuilder flyScript, string key)
+        {
+            flyScript.AppendFormat("{0} = [{1}]", key, ConcatenateStrings(list));
+        }
+
+        private void BuildSingleRecord(Dictionary<string, string> record, StringBuilder flyScript, string key)
+        {
+            flyScript.AppendFormat("{0} = { ", key);
+            BuildHashPart(record, flyScript);
+            flyScript.AppendFormat("}\n");
+        }
+
+        private void BuildRecordArray(List<Dictionary<string, string>> list, StringBuilder flyScript, string key)
+        {
+            flyScript.AppendFormat("{0} = [ ", key);
+            int count = 0;
+            foreach (Dictionary<string, string> item in list)
+            {
+                if (count == 0)
+                    BuildHashPart(item, flyScript);
+                else
+                {
+                    flyScript.AppendFormat(", ");
+                    BuildHashPart(item, flyScript);
+                }
+
+                count += 1;
+            }
+            flyScript.AppendFormat(" ]\n");
+        }
+
+        private static void BuildHashPart(Dictionary<string, string> record, StringBuilder flyScript)
+        {
+            int count = 0;
+            foreach (var item in record)
+            {
+                if (count == 0)
+                    flyScript.AppendFormat("{0} => \"{1}\"", item.Key, item.Value);
+                else
+                    flyScript.AppendFormat(", {0} => \"{1}\"", item.Key, item.Value);
+
+                count += 1;
+            }
+        }
+
+        private string ConcatenateStrings(List<string> list)
+        {
+            StringBuilder sb = new StringBuilder();
+            int count = 0;
+            foreach (var item in list)
+            {
+                if (count > 0)
+                    sb.AppendFormat(", \"{0}\"", item);
+                else
+                    sb.AppendFormat("\"{0}\"", item);
+
+                count += 1;
+            }
+            return sb.ToString();
         }
 
         private void FireTeminatedEvent()

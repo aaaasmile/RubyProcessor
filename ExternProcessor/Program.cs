@@ -11,7 +11,9 @@ namespace ExternProcessor
     {
         static void Main(string[] args)
         {
-            Dictionary<string, string> env = new Dictionary<string, string>();
+            Dictionary<string, object> env = new Dictionary<string, object>();
+            CreateDemoEnv(env);
+
             AnotherProcessor proc = new AnotherProcessor();
             proc.TeminatedEvent += (x) => { Console.WriteLine(x); };
 
@@ -22,11 +24,35 @@ namespace ExternProcessor
             Console.ReadKey();
         }
 
+        private static void CreateDemoEnv(Dictionary<string, object> env)
+        {
+            env.Add("myname", "Igor");
+            env.Add("Inv. No.", "INV-2344");
+
+            var set = new List<Dictionary<string, string>>();
+
+            var record = new Dictionary<string, string>();
+            record["No."] = "101000";
+            record["Description"] = "The simple item";
+            record["Price"] = "1000,00";
+            record["Date"] = "01/02/2017";
+            set.Add(record);
+
+            var record2 = new Dictionary<string, string>();
+            record2["No."] = "101001";
+            record2["Description"] = "The second ";
+            record2["Price"] = "2200,00";
+            record2["Date"] = "02/02/2017";
+            set.Add(record2);
+
+            env.Add("dataset1", set);
+        }
+
         private static string CreateDemoTemplate()
         {
             StringBuilder str = new StringBuilder();
 
-            str.Append("This is a Template by <%= name %>");
+            str.Append("This is the Template by <%= myname %>");
 
             return str.ToString();
         }
