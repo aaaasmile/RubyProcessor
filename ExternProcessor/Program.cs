@@ -26,8 +26,10 @@ namespace ExternProcessor
 
         private static void CreateDemoEnv(Dictionary<string, object> env)
         {
-            env.Add("myname", "Igor");
-            env.Add("Inv. No.", "INV-2344");
+            var root = new Dictionary<string, string>();
+            root["UserName"] = "IgSa";
+            root["Inv. No."] = "INV-2344";
+            env.Add("root", root);
 
             var set = new List<Dictionary<string, string>>();
 

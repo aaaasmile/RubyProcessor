@@ -108,9 +108,9 @@ namespace ExternProcessorLib
 
         private void BuildSingleRecord(Dictionary<string, string> record, StringBuilder flyScript, string key)
         {
-            flyScript.AppendFormat("{0} = { ", key);
+            flyScript.AppendFormat("{0} = {{ ", key);
             BuildHashPart(record, flyScript);
-            flyScript.AppendFormat("}\n");
+            flyScript.AppendFormat("}}\n");
         }
 
         private void BuildRecordArray(List<Dictionary<string, string>> list, StringBuilder flyScript, string key)
@@ -138,9 +138,9 @@ namespace ExternProcessorLib
             foreach (var item in record)
             {
                 if (count == 0)
-                    flyScript.AppendFormat("{0} => \"{1}\"", item.Key, item.Value);
+                    flyScript.AppendFormat("'{0}' => \"{1}\"", item.Key, item.Value);
                 else
-                    flyScript.AppendFormat(", {0} => \"{1}\"", item.Key, item.Value);
+                    flyScript.AppendFormat(", '{0}' => \"{1}\"", item.Key, item.Value);
 
                 count += 1;
             }
