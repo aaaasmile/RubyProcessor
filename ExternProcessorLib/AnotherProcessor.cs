@@ -14,9 +14,16 @@ namespace ExternProcessorLib
         private static log4net.ILog _log = log4net.LogManager.GetLogger(typeof(AnotherProcessor));
 
         private StringBuilder _result = new StringBuilder();
+        private LibSettings _settings;
 
         public delegate void ProcessTerminatedHandler(string Result);
         public event ProcessTerminatedHandler TeminatedEvent;
+
+
+        public AnotherProcessor()
+        {
+            _settings = new LibSettings();
+        }
 
         public void InitLogger()
         {
@@ -25,6 +32,26 @@ namespace ExternProcessorLib
             {
                 XmlConfigurator.ConfigureAndWatch(new FileInfo(filename));
             }
+        }
+
+        public void CheckVersion()
+        {
+            ProcessStarter processStarter = new ProcessStarter();
+            processStarter.OutputWrittenEvent += (x) => _result.AppendLine(x);
+
+            string rubyExePath = _settings.GetRubyExePath();
+            try
+            {
+                processStarter.ExecuteCmd(rubyExePath, "-v");
+            }
+            catch (Exception ex)
+            {
+
+                _result.Append(string.Format("Error: {0}", ex));
+            }
+
+
+            FireTeminatedEvent();
         }
 
         public void StartProcess(Dictionary<string, object> env, string template)
@@ -37,7 +64,9 @@ namespace ExternProcessorLib
             string fileName = GenerateAppScript(env, template);
 
             //processStarter.ExecuteCmd(@"C:\local\share\ruby_2_3_3\bin\ruby.exe", @"c/Users/igsa/AppData/Local/Temp/tmplate_1f822f0c - 4a48 - 469e-a436 - d79b460ceb77.rb1");
-            processStarter.ExecuteCmd(@"C:\local\share\ruby_2_3_3\bin\ruby.exe", fileName);
+
+            string rubyExePath = _settings.GetRubyExePath();
+            processStarter.ExecuteCmd(rubyExePath, fileName);
 
 
             _result.Append("Done!");

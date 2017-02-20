@@ -18,7 +18,8 @@ namespace ExternProcessor
             proc.TeminatedEvent += (x) => { Console.WriteLine(x); };
 
             proc.InitLogger();
-            proc.StartProcess(env, CreateDemoTemplate());
+            //proc.StartProcess(env, CreateDemoTemplate());
+            proc.CheckVersion();
 
             Console.WriteLine("Press any Key");
             Console.ReadKey();
